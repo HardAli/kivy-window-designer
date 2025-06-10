@@ -1,0 +1,48 @@
+<MyProject>:
+    bl: bl
+    first_name_inp: first_name_inp
+    last_name_inp: last_name_inp
+    password_inp: password_inp
+    BoxLayout:
+        id: bl
+        size: root.width, root.height
+        orientation: 'vertical'
+
+        BoxLayout:
+            orientation: 'horizontal'
+
+            Label:
+                text: 'First Name'
+                font_size: 30
+
+            TextInput:
+                id: first_name_inp
+                font_size:30
+
+        BoxLayout:
+            orientation: 'horizontal'
+
+            Label:
+                text: 'Last Name'
+                font_size: 30
+
+            TextInput:
+                id: last_name_inp
+                font_size:30
+
+        BoxLayout:
+            orientation: 'horizontal'
+
+            Label:
+                text: 'Password'
+                font_size: 30
+
+            TextInput:
+                id: password_inp
+                font_size:30
+
+        Button:
+            text: 'submit'
+            font_size: 30
+            on_press: root.submit()
+

@@ -1,0 +1,108 @@
+WindowManager:
+    Menu:
+    CreateNewWindow:
+    GlassCut:
+    Prices:
+    Components:
+
+<Menu>:
+    name:'Menu'
+    AnchorLayout:
+        orientation: 'center'
+        BoxLayout:
+            size_hint_x: 0.5
+            size_hint_y: 0.5
+            orientation: 'vertical'
+            Label:
+                text: "Приветствуем вас в программе"
+                font_size: 30
+
+            Button:
+                text: 'Создать окно'
+                font_size: 25
+                on_press: app.root.current = 'CreateNewWindow'
+            Button:
+                text: 'Стекло'
+                font_size: 25
+                on_press: app.root.current = 'GlassCut'
+            Button:
+                text: 'Прайсы'
+                font_size: 25
+                on_press: app.root.current = 'Prices'
+            Button:
+                text: 'Добавить компонент'
+                font_size: 25
+                on_press: app.root.current = 'Components'
+
+<CreateNewWindow>:
+    name: 'CreateNewWindow'
+    can:can
+    AnchorLayout:
+        id: can
+        anchor_y: 'bottom'
+        anchor_x: 'center'
+        BoxLayout:
+            size_hint_x: 0.6
+            size_hint_y: 0.2
+            orientation: 'horizontal'
+
+            Button:
+                text: '+ section'
+                on_press: root.add_new_section()
+
+            Button:
+                text: '- section'
+
+            Button:
+                text: 'menu'
+                on_press: app.root.current = 'Menu'
+
+    AnchorLayout:
+        anchor_y: 'center'
+        anchor_x: 'center'
+        canvas:
+
+
+
+
+
+
+<GlassCut>:
+    name: 'GlassCut'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 50
+        Label:
+            text: 'GlassCut'
+            font_size: 30
+        Button:
+            text: 'menu'
+            font_size: 30
+            on_press: app.root.current = 'Menu'
+
+<Prices>:
+    name: 'Prices'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 50
+        Label:
+            text: 'Price'
+            font_size: 30
+        Button:
+            text: 'menu'
+            font_size: 30
+            on_press: app.root.current = 'Menu'
+
+<Components>:
+    name: 'Components'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 50
+        Label:
+            text: 'Components'
+            font_size: 30
+        Button:
+            text: 'menu'
+            font_size: 30
+            on_press: app.root.current = 'Menu'
+

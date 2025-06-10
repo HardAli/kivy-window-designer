@@ -1,0 +1,13 @@
+<LineAndInput>:
+    canvas:
+        Line:
+            points: self.center_x - 300, self.center_y, self.center_x + 300, self.center_y
+            width: 2
+
+    TextInput:
+        center_x: self.center_x
+        center_y: self.center_y
+        text: '2000'
+        multiline: False
+        input_filter: 'int'
+        hint_text: 'Это подсказка'

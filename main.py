@@ -8,7 +8,8 @@ from glasscut import GlassCut
 
 # задаем размер окна
 Window.size = (700, 500)
-Window.cleacolor = (255/255, 186/255, 186/255, 1)
+# set background color
+Window.clearcolor = (255/255, 186/255, 186/255, 1)
 Window.title = 'ZarWindow'
 Window.resizable = True
 
@@ -23,8 +24,9 @@ Window.bind(on_resize=on_window_resize)
 
 
 # конвертируем цвета rgb и3 255 системы в 0-1
-def color_convector(r=0, g=0, b=0, color=[]):
-    if not color:
+def color_convector(r=0, g=0, b=0, color=None):
+    """Преобразуйте значения RGB из диапазона 0-255 в диапазон 0-1."""
+    if color is None:
         color = [r, g, b]
     elif len(color) == 3:
         if color[0] > 1:

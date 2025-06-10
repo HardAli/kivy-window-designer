@@ -153,7 +153,7 @@ class ColorFloatLayout(FloatLayout, ColoredLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         with self.canvas.before:
-            self.rect_color = Color(self.get_color)
+            self.rect_color = Color(self.get_color())
             self.rect = Rectangle(size=self.size, pos=self.pos)
 
         self.bind(size=self.update_rect, pos=self.update_rect)

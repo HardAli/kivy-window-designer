@@ -3,6 +3,8 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.button import Button
+
+from frame_setting_popup import FrameSettingsPopup
 from kivy.graphics import Color, Ellipse, Line, Rectangle, RoundedRectangle, Canvas
 
 
@@ -110,6 +112,14 @@ class ColorButtonBoxLayout(BoxLayout, ColoredLayout):
         self.overlay.add_widget(self.right_button)
 
         self.bind(size=self.update_buttons, pos=self.update_buttons)
+
+    def on_touch_down(self, touch):
+        if super().on_touch_down(touch):
+            return True
+        if self.collide_point(*touch.pos):
+            FrameSettingsPopup(self.window, self.frame_id).open()
+            return True
+        return False
 
     def update_rect(self, *args):
         self.rect_glass.size = (self.width - GlASS_BOTTOM, self.height - GlASS_BOTTOM)

@@ -5,6 +5,8 @@ from AttachedOverlays import WindowLinesEvent as lineEvent
 from Lines import LineIntInput
 from tables import ScrollableTableContainer
 from windowbuilder import WindowBuilder
+from createwinstate import CreateWinState
+from kivy.clock import Clock
 
 
 class GlassCut(Screen):
@@ -16,11 +18,19 @@ class GlassCut(Screen):
         self.my_window = None
         self._initialized = False
 
+    def pprint(self, *args):
+        #print(self.my_window.main_frame.width, self.my_window.main_frame.height)
+        pass
+
     def on_pre_enter(self, *args):
         if self._initialized:
             return
 
         self.my_window = WindowBuilder()
+        CreateWinState.window = self.my_window
+        CreateWinState.main_frame = self.my_window.main_frame
+
+        Clock.schedule_interval(self.pprint, 1)
 
         self.main_layout = ColorBoxLayout(orientation='vertical')
         self.main_layout.set_color(0.8, 0.8, 0.8)
@@ -31,10 +41,10 @@ class GlassCut(Screen):
         self.add_widget(self.main_layout)
         self.add_widget(SlideOutsLayoutWindowModels(self.main_layout))
 
-        self.my_window.main_box_layout.pos_hint = {"center_x": 0.5, "center_y": 0.5}
+        self.my_window.main_widow_layout.pos_hint = {"center_x": 0.5, "center_y": 0.5}
 
         self.over_tablo = lineEvent(
-            target_widget=self.my_window.main_box_layout,
+            target_widget=self.my_window.main_widow_layout,
             b_el=LineIntInput(is_vertical=False),
             r_el=LineIntInput(is_vertical=True)
         )

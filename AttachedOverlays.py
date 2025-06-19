@@ -4,12 +4,13 @@ from kivy.graphics import Line, Color, Rectangle
 from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
 from kivy.core.window import Window
+from createwinstate import CreateWinState
 
 from windowlayout import WindowLayout
 
 
 class AttachedOverlay(FloatLayout):
-    def __init__(self, target_widget: Widget, margin: int = 30, l_el=0, r_el=0, t_el=0, b_el=0, **kwargs):
+    def __init__(self, target_widget: Widget, margin: int = 30, l_el=0, r_el=0, t_el=0, b_el=0, main_frame=None, **kwargs):
         """
         Компонент, размещающий элементы по сторонам от целевого виджета.
 
@@ -67,7 +68,6 @@ class WindowLinesEvent(AttachedOverlay):
         self.right_text_input = self.r_el.text_input
         self.bottom_text_input = self.b_el.text_input
 
-
         self.right_text_input.bind(on_text_validate=self.r_on_enter)
         self.right_text_input.bind(focus=self.r_on_focus_change)
 
@@ -101,10 +101,13 @@ class WindowLinesEvent(AttachedOverlay):
         try:
             if width_text:
                 width = int(width_text)
+                CreateWinState.main_frame.width = width
             if height_text:
                 height = int(height_text)
+                CreateWinState.main_frame.height = height
 
             self.target.update_size(upd_width=width, upd_height=height)
+            print(width, height, 'af')
 
         except ValueError:
             print("⚠ Введены некорректные значения ширины/высоты.")

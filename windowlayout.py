@@ -4,7 +4,6 @@ from kivy.clock import Clock
 
 SPACING = 10
 
-
 class WindowLayout(ColorBoxLayout):
     def __init__(self, orientation='horizontal', spacing=10, padding=SPACING,
                  background_color=(0.9, 0.9, 0.9, 1), orig_width=2000, orig_height=1000, scale_factor=0.7, **kwargs):
@@ -17,29 +16,34 @@ class WindowLayout(ColorBoxLayout):
         self.orig_width = orig_width
         self.orig_height = orig_height
         self.size_hint = (None, None)
+        self._updating = False
+
+        self.bind(pos=self.update_scale)
         self.bind(size=self.update_scale)
         Window.bind(on_resize=self.on_window_resize)
-        print('afssfdad')
-
         Clock.schedule_once(self.update_scale, 0)
 
-    def update_scale(self, *args):
-        if self.orig_height == 0 or self.orig_width == 0:
-            return
-        if not self.parent:
-            return
+    def get_update_scale(self, orig_parametr):
+        if not self.parent or self.orig_width == 0 or self.orig_height == 0:
+            return None
 
         box_w, box_h = self.parent.width, self.parent.height
+        scale = min(box_w / self.orig_width, box_h / self.orig_height)
+        return orig_parametr * scale * self.scale_factor
 
-        scale_w = box_w / self.orig_width
-        scale_h = box_h / self.orig_height
-        scale = min(scale_w, scale_h)
+    def update_scale(self, *args):
+        if self._updating:
+            return
+        self._updating = True
 
-        new_w = self.orig_width * scale * self.scale_factor
-        new_h = self.orig_height * scale * self.scale_factor
+        new_w = self.get_update_scale(self.orig_width)
+        new_h = self.get_update_scale(self.orig_height)
 
-        if abs(self.width - new_w) > 10 or abs(self.height - new_h) > 10:
-            self.size = (new_w, new_h)
+        if new_w is not None and new_h is not None:
+            if abs(self.width - new_w) > 3 or abs(self.height - new_h) > 3:
+                self.size = (new_w, new_h)
+
+        self._updating = False
 
     def on_window_resize(self, *args):
         Clock.schedule_once(self.update_scale, 0)
@@ -49,24 +53,11 @@ class WindowLayout(ColorBoxLayout):
         self.orig_height = height
         Clock.schedule_once(self.update_scale, 0)
 
-    def update_size(
-            self,
-            upd_size: list[float] | tuple[float, float] | None = None,
-            upd_width: float = 0,
-            upd_height: float = 0
-    ) -> None:
-        """
-        Обновляет размеры объекта (логические orig_width / orig_height).
-
-        :param upd_size: список или кортеж [ширина, высота]
-        :param upd_width: новая ширина (перезаписывает upd_size[0])
-        :param upd_height: новая высота (перезаписывает upd_size[1])
-        """
-
+    def update_size(self, upd_size=None, upd_width=0, upd_height=0) -> None:
         if upd_size and len(upd_size) == 2:
-            if upd_size[0]:
+            if upd_size[0] is not None:
                 self.orig_width = abs(upd_size[0])
-            if upd_size[1]:
+            if upd_size[1] is not None:
                 self.orig_height = abs(upd_size[1])
 
         if upd_width:
@@ -76,5 +67,3 @@ class WindowLayout(ColorBoxLayout):
             self.orig_height = abs(upd_height)
 
         Clock.schedule_once(self.update_scale, 0)
-
-

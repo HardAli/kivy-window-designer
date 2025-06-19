@@ -11,6 +11,12 @@ class Frame:
     parent: Optional['Frame']
     layout: Widget
     child: List['Frame'] = field(default_factory=list)
+    main_frame: bool = False
+    manual_set_parametrs: bool = False
+    orientation: str = 'horizontal'
+
+    def __repr__(self):
+        return f"id={self.frame_id} sz={self.width}x{self.height} orientation = {self.orientation}"
 
     def to_dict(self):
         return {
@@ -20,3 +26,6 @@ class Frame:
             'parent_id': self.parent.frame_id if self.parent else None,
             'child_ids': [c.frame_id for c in self.child]
         }
+
+    def get_new_true_size(self):
+        pass

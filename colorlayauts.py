@@ -3,6 +3,7 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 
 from frame_setting_popup import FrameSettingsPopup
 from kivy.graphics import Color, Ellipse, Line, Rectangle, RoundedRectangle, Canvas
@@ -78,6 +79,8 @@ class ColorBoxLayout(BoxLayout, ColoredLayout):
 class ColorButtonBoxLayout(BoxLayout, ColoredLayout):
     def __init__(self, frame_id, window, **kwargs):
         super().__init__(**kwargs)
+        with self.canvas.after:
+            self.label_id = Label(text=str(frame_id), pos=[self.center_x, self.center_y], size=[25, 25], color=(0, 0, 0, 1))
         with self.canvas.before:
             self.rect_color = Color(self.get_color())
             self.rect = Rectangle(size=self.size, pos=self.pos)
@@ -133,6 +136,8 @@ class ColorButtonBoxLayout(BoxLayout, ColoredLayout):
     def update_buttons(self, *args):
         self.top_button.pos = (self.width/2 - self.top_button.width / 2, self.height - self.top_button.height)
         self.right_button.pos = (self.width - self.right_button.width, self.height / 2 - self.right_button.height / 2)
+
+        self.label_id.pos = (self.center_x - 12.5, self.center_y - 12.5)
 
     def on_button_press(self, instance):
         button_id = str(instance.id)

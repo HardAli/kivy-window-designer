@@ -1,5 +1,4 @@
 from kivy.uix.widget import Widget
-from kivy.clock import Clock
 from kivy.graphics import Line, Color, Rectangle
 from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
@@ -74,42 +73,58 @@ class WindowLinesEvent(AttachedOverlay):
         self.bottom_text_input.bind(on_text_validate=self.b_on_enter)
         self.bottom_text_input.bind(focus=self.b_on_focus_change)
 
+        self._is_updating = False
+
     def r_on_enter(self, instance):
-        self.try_update_target_size()
+        self.try_update_target_size('height')
+        self.bottom_text_input.focus = True  # обратно на нижний
 
     def r_on_focus_change(self, instance, focus):
         if not focus:
-            self.try_update_target_size()
+            self.try_update_target_size('height')
 
     def b_on_enter(self, instance):
-        self.try_update_target_size()
+        self.try_update_target_size('width')
+        self.right_text_input.focus = True  # направо
 
     def b_on_focus_change(self, instance, focus):
         if not focus:
-            self.try_update_target_size()
+            self.try_update_target_size('width')
 
-    def try_update_target_size(self):
-        if not isinstance(self.target, WindowLayout):
-            print('it is o boje')
+    def try_update_target_size(self, target: str):
+        if self._is_updating:
             return
 
-        width_text = self.bottom_text_input.text.strip()
-        height_text = self.right_text_input.text.strip()
-        width = 0
-        height = 0
+        self._is_updating = True
 
         try:
-            if width_text:
-                width = int(width_text)
-                CreateWinState.main_frame.width = width
-            if height_text:
-                height = int(height_text)
-                CreateWinState.main_frame.height = height
+            if not isinstance(self.target, WindowLayout):
+                print('it is o boje')
+                return
 
-            self.target.update_size(upd_width=width, upd_height=height)
-            print(width, height, 'af')
+            width_text = self.bottom_text_input.text.strip()
+            height_text = self.right_text_input.text.strip()
+
+            width = None
+            height = None
+
+            if width_text and target == 'width' or target == 'all':
+                print('width')
+                width = int(width_text)
+                CreateWinState.main_frame.update_width(width)
+
+                print('\n\n\n\n  iobanyi urod \n\n\n\n')
+            if height_text and target == 'height' or target == 'all':
+                height = int(height_text)
+                CreateWinState.main_frame.update_height(height)
+
+                print('\n\n\n\n  iobanyi urod \n\n\n\n')
+
+            self.target.update_size(upd_width=width or 0, upd_height=height or 0)
 
         except ValueError:
             print("⚠ Введены некорректные значения ширины/высоты.")
+        finally:
+            Clock.schedule_once(lambda dt: setattr(self, '_is_updating', False), 0.1)  # чуть позже снимаем флаг
 
 

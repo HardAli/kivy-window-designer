@@ -1,11 +1,11 @@
 from kivy.core.window import Window
 from colorlayauts import ColorBoxLayout
 from kivy.clock import Clock
+from createwinstate import SPACING
 
-SPACING = 10
 
 class WindowLayout(ColorBoxLayout):
-    def __init__(self, orientation='horizontal', spacing=10, padding=SPACING,
+    def __init__(self, orientation='horizontal', spacing=SPACING, padding=SPACING,
                  background_color=(0.9, 0.9, 0.9, 1), orig_width=2000, orig_height=1000, scale_factor=0.7, **kwargs):
         super().__init__(**kwargs)
         self.orientation = orientation

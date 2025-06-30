@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional, List
 from kivy.uix.widget import Widget
+from arrowwidget import ArrowWidget
 
 
 
@@ -18,6 +19,7 @@ class Frame:
     manual_set_parametr_w: bool = False
     manual_set_parametr_h: bool = False
     orientation: str = 'horizontal'
+    arrow_widget: ArrowWidget = ArrowWidget('deaf')
 
     def __repr__(self):
         child_ids = [c.frame_id for c in self.child]
@@ -42,15 +44,27 @@ class Frame:
             'child_ids': [c.frame_id for c in self.child]
         }
 
+    def recalculate_frames(self):
+        """Рекурсивно пересчитывает размеры всех дочерних фреймов."""
+        parent_width, parent_height = self.width, self.height
+        if len(self.child) == 1:
+            self.child[0].width = parent_width
+            self.child[0].height = parent_height
+        elif not len(self.child):
+            return None
+
+        fixed_total_w = sum(child.width for child in self.child if child.manual_set_parametr_w)
+        fixed_total_h = sum(child.height for child in self.child if child.manual_set_parametr_h)
+
+
+
     def recalculate_dimensions(self) -> None:
         """Рекурсивно пересчитывает размеры всех дочерних фреймов."""
-
-        # Горизонтальная или вертикальная ориентация
+        print(f'frame_id: {self.frame_id}, {self}')
         dimension = 'width' if self.orientation == 'horizontal' else 'height'
         manual_attr = 'manual_set_parametr_w' if dimension == 'width' else 'manual_set_parametr_h'
         parent_size = getattr(self, dimension)
-
-        print(f'dimension = {dimension}  manual_attr = {manual_attr}  parent_size = {parent_size}')
+        print(f'parent_size: {parent_size}')
 
         # Считаем сумму фиксированных значений
         fixed_total = sum(
@@ -69,9 +83,7 @@ class Frame:
             return
 
         # Новый размер для масштабируемых детей
-        per_child_size = remaining // num_scalable if num_scalable else 0
-
-        print(per_child_size)
+        per_child_size = remaining // num_scalable if num_scalable else parent_size
 
         # Установка новых размеров
         for child in self.child:

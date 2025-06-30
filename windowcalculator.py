@@ -22,11 +22,9 @@ class WindowCalculator:
         - length: длина перегородки
         - thickness: константная ширина перегородки
         """
-        imposts = []
-        imposts.append({'length': self.root.width})
-        imposts.append({'length': self.root.width})
-        imposts.append({'length': self.root.height})
-        imposts.append({'length': self.root.height})
+
+        imposts = [{'length': self.root.width}, {'length': self.root.width}, {'length': self.root.height},
+                   {'length': self.root.height}]
         self._traverse_and_collect(self.root, imposts)
         self.root._log_tree_structure()
         self.log_frame_sizes(self.root)

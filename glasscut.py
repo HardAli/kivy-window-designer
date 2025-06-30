@@ -80,4 +80,5 @@ class GlassCut(Screen):
             data.append(row)
 
         self.my_table.fill_table(data)
+        self.my_table.size_hint_y = 0.4
         self.main_layout.add_widget(self.my_table)

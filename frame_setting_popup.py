@@ -1,25 +1,42 @@
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.clock import Clock
 from windowcalculator import WindowCalculator
 from collections import Counter
+from arrowwidget import ArrowWidget, ArrowButtonWidget
 
 import createwinstate
 from createwinstate import CreateWinState, SPACING
 from kivy.core.window import Window
+
+ENTER_KEY = 13
 
 
 class FrameSettingsPopup(Popup):
     """Popup для настройки размеров секции окна."""
 
     def __init__(self, window_builder, frame_id, **kwargs):
-        super().__init__(title="Параметры секции", size_hint=(None, None), size=(600, 400), **kwargs)
+        super().__init__(title="Параметры секции", size_hint=(None, None), size=(500, 600), **kwargs)
         self.window_builder = window_builder
         self.frame_id = frame_id
         self.frame = self.window_builder.get_frame_with_id(self.frame_id)
         self.parent_frame = self.frame.parent
+
+        self.open_window_scheme_layout = GridLayout(rows=4, cols=4, spacing=15, padding=40)
+        self.open_window_schemes = [
+            ArrowButtonWidget('deaf', self.frame.arrow_widget),
+            ArrowButtonWidget('right_folding', self.frame.arrow_widget),
+            ArrowButtonWidget('left_folding', self.frame.arrow_widget),
+            ArrowButtonWidget('down', self.frame.arrow_widget),
+            ArrowButtonWidget('right', self.frame.arrow_widget), ArrowButtonWidget('left', self.frame.arrow_widget),
+            ArrowButtonWidget('round', self.frame.arrow_widget), ArrowButtonWidget('up', self.frame.arrow_widget)
+        ]
+        for open_window_scheme in self.open_window_schemes:
+            open_window_scheme.splush = 1
+            self.open_window_scheme_layout.add_widget(open_window_scheme)
 
         wincal = WindowCalculator(CreateWinState.main_frame)
         wincal_resul = wincal.get_all_imposts()
@@ -27,7 +44,7 @@ class FrameSettingsPopup(Popup):
         for wincal_res in wincal_resul:
             wincal_res['length'] = int(wincal_res['length'])
             new_w.append(wincal_res)
-        self.kol_od(new_w)
+        self.count_duplicate_dicts(new_w)
         print(wincal_resul)
 
         self.check_change_width = False
@@ -51,7 +68,8 @@ class FrameSettingsPopup(Popup):
         if self.frame.height:
             self.height_input.text = str(int(self.frame.height))
 
-        if len(window_builder.get_brother(frame=self.frame)) < 1:
+        brothers = window_builder.get_brother(frame=self.frame)
+        if len(brothers) < 1:
             print(len(window_builder.get_brother(frame=self.frame)))
             self.set_readonly_input(self.width_input)
             self.set_readonly_input(self.height_input)
@@ -60,7 +78,7 @@ class FrameSettingsPopup(Popup):
             self.check_change_width = True
         elif self.parent_frame.orientation == 'vertical':
             self.set_readonly_input(self.width_input)
-            self.check_change_width = True
+            self.check_change_height = True
         else:
             print(f'error frame_setting_popup __init__ self.parent_frame = {self.parent_frame.orientation}')
 
@@ -71,6 +89,7 @@ class FrameSettingsPopup(Popup):
         btn_cancel.bind(on_release=lambda *_: self.dismiss())
 
         layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        layout.add_widget(self.open_window_scheme_layout)
         layout.add_widget(self.width_input)
         layout.add_widget(self.height_input)
 
@@ -81,11 +100,9 @@ class FrameSettingsPopup(Popup):
 
         Window.bind(on_key_down=self._on_key_down)
 
-        self.window_builder.get_brother(frame_id=self.frame_id)
-
         self.add_widget(layout)
 
-    def kol_od(self, dict_list):
+    def count_duplicate_dicts(self, dict_list):
         hashable_dicts = [frozenset(sorted(d.items())) for d in dict_list]
 
         # Считаем количество одинаковых
@@ -97,12 +114,18 @@ class FrameSettingsPopup(Popup):
             print(f"{original_dict} встречается {count} раз(а)")
 
     def _set_initial_focus(self, *_):
+        def set_focus_and_select(input_field, open_frizer: int = 2):
+            input_field.focus = True
+            Clock.schedule_once(lambda dt: input_field.select_all(), 0.05)
+            if open_frizer > 0:
+                open_frizer -= 1
+                print(open_frizer)
+                Clock.schedule_once(lambda dt: set_focus_and_select(input_field, open_frizer), 0.05)
+
         if not self.width_input.readonly:
-            self.width_input.focus = True
-            Clock.schedule_once(lambda dt: self.width_input.select_all(), 0.05)
+            Clock.schedule_once(lambda dt: set_focus_and_select(self.width_input), 0.05)
         elif not self.height_input.readonly:
-            self.height_input.focus = True
-            Clock.schedule_once(lambda dt: self.height_input.select_all(), 0.05)
+            Clock.schedule_once(lambda dt: set_focus_and_select(self.height_input), 0.05)
 
     def set_readonly_input(self, r_input: TextInput):
         r_input.readonly = True
@@ -111,7 +134,7 @@ class FrameSettingsPopup(Popup):
         r_input.cursor_color = (0, 0, 0, 0)
 
     def _on_key_down(self, window, key, scancode, codepoint, modifiers):
-        if key == 13: # Enter
+        if key == ENTER_KEY:  # Enter
             print("Enter нажата - закрытие Popup")
             self._on_save()
             return True
@@ -141,11 +164,15 @@ class FrameSettingsPopup(Popup):
             self.frame.update_width(width)
             self.frame.manual_set_parametr_w = True
         if self.check_change_height:
+            print('\n\n\n\nUpdate height\n\n\n\n')
+            print('\n\n\n\nUpdate height\n\n\n\n')
+            print('\n\n\n\nUpdate height\n\n\n\n')
+            print('\n\n\n\nUpdate height\n\n\n\n')
+            print('\n\n\n\nUpdate height\n\n\n\n')
             self.frame.update_height(height)
             self.frame.manual_set_parametr_h = True
 
         self.frame.parent.recalculate_dimensions()
         self.frame.update_layouts_size_hint()
-
 
         self.dismiss()

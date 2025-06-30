@@ -3,6 +3,7 @@ from models import Frame
 from windowlayout import WindowLayout
 from colorlayauts import ColorButtonBoxLayout
 from createwinstate import CreateWinState, SPACING
+from arrowwidget import ArrowWidget
 
 
 class WindowBuilder(Widget):
@@ -54,6 +55,43 @@ class WindowBuilder(Widget):
 
     def get_max_layout_id(self) -> int:
         return max(self.frame_id_to_widget_map.keys(), default=0)
+
+    def delete_frame(self, frame_id: int):
+        frame = self.get_frame_with_id(frame_id)
+        if not frame:
+            print(f"⚠ Невозможно удалить: фрейм с ID {frame_id} не найден.")
+            return
+
+        if frame.main_frame:
+            print("❌ Нельзя удалить главный фрейм (main_frame).")
+            return
+
+        parent = frame.parent
+        if frame in parent.child:
+            parent.child.remove(frame)
+
+        if frame.layout in parent.layout.children:
+            parent.layout.remove_widget(frame.layout)
+
+        if frame_id in self.frame_id_to_widget_map:
+            del self.frame_id_to_widget_map[frame_id]
+
+        if frame in self.frame_structure:
+            self.frame_structure.remove(frame)
+
+        print(f"✅ Удалён фрейм {frame_id}")
+
+        if self.parent_frame.orientation == "horizontal":
+            self.main_frame.recalculate_dimensions()
+        else:
+            self.main_frame.recalculate_dimensions()
+
+        if len(parent.child) == 1 and parent.frame_id != 0:
+            self.delete_frame(parent.child[0].frame_id)
+            parent.layout.show_canvas = True
+
+        for f in self.frame_structure:
+            print(f)
 
     def add_frame(self, window, frame_id: int = 0, orientation_frame: str = 'horizontal'):
         check_window_changing = False
@@ -116,13 +154,15 @@ class WindowBuilder(Widget):
                                               frame_id=new_id,
                                               window=window,
                                               spacing=SPACING)
-
             self.new_frame = Frame(frame_id=new_id,
                                    width=100,
                                    height=100,
                                    parent=self.parent_frame,
                                    layout=new_layout,
                                    orientation=orientation_frame)
+            new_arrow_widget = ArrowWidget()
+            new_layout.overlay.add_widget(new_arrow_widget, index=len(new_layout.children) + 1)
+            self.new_frame.arrow_widget = new_arrow_widget
 
             self.parent_frame.orientation = orientation_frame
 
@@ -131,7 +171,7 @@ class WindowBuilder(Widget):
 
             if clear and self.parent_frame.frame_id != 0:
                 self.parent_frame.layout.clear_widgets()
-                self.parent_frame.layout.canvas.before.clear()
+                self.parent_frame.layout.show_canvas = False
 
             self.parent_frame.layout.orientation = orientation_frame
             if check_window_changing:

@@ -353,7 +353,7 @@ class CreateNewWindow(Screen):
         self.fill_empty_window()
         self.window.sorted_parametrs_with_id()
         self.draw_window(self.window)
-        print(self.window.get_windows())
+        #print(self.window.get_windows())
 
 
 
@@ -438,7 +438,7 @@ class CreateNewWindow(Screen):
             if not window_parametrs:
                 window_parametrs = self.window.window[2]
             glaw_win_pos = self.window.get_pos()
-            print(f'glaw win pos: {glaw_win_pos}')
+            #print(f'glaw win pos: {glaw_win_pos}')
             for i, window in enumerate(window_parametrs):
                 #Проверка на то что id != 0, потому что координаты рамки не обнуляются
                 if window['id'] != 0:

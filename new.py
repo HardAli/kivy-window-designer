@@ -103,7 +103,7 @@ class SlideOutMenu(BoxLayout):
             self.grid.add_widget(img)
             self.images.append(img)  # Сохраняем `Image`, чтобы обновлять
 
-        print(self.images)
+        #print(self.images)
 
         self.add_widget(self.grid)
         Window.bind(on_resize=self.on_window_resize)

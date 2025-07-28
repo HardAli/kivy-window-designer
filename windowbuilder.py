@@ -1,14 +1,17 @@
 from kivy.uix.widget import Widget
+from kivy.core.window import Window
 from models import Frame
 from windowlayout import WindowLayout
-from colorlayauts import ColorButtonBoxLayout
+from windowsection import WindowSection
 from createwinstate import CreateWinState, SPACING
 from arrowwidget import ArrowWidget
+from popup_resize import FrameResizePopup
 
 
 class WindowBuilder(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.izm_orient = None
         self.parent_frame = None
         self.main_widow_layout = WindowLayout()
         self.new_frame = None
@@ -24,8 +27,47 @@ class WindowBuilder(Widget):
         self.frame_structure = [self.main_frame]
         self.frame_id_to_widget_map: dict[int, Widget] = {0: self.main_widow_layout}
 
-    def update_canvas(self, *args):
-        pass  # пока заглушка
+        self.selected_frames = []
+        self.ctrl_down = False
+        Window.bind(on_key_down=self._on_key_down, on_key_up=self._on_key_up)
+
+    def _on_key_down(self, window, key, scancode, codepoint, modifiers):
+        if 'ctrl' in modifiers:
+            self.ctrl_down = True
+        if key == 13:  # Enter
+            if self.ctrl_down and self.selected_frames:
+                popup = FrameResizePopup(self.selected_frames)
+                popup.open()
+            else:
+                self._clear_selection()
+
+    def _on_key_up(self, *args):
+        self.ctrl_down = False
+
+    def toggle_select_frame(self, frame):
+        if not self.ctrl_down:
+            return
+
+        if not self.selected_frames:
+            self.selected_frames.append(frame)
+            frame.highlight()
+        else:
+            # Проверка: общий родитель
+            common_parent = self.selected_frames[0].parent
+            if frame.parent != common_parent:
+                return
+
+            if frame in self.selected_frames:
+                self.selected_frames.remove(frame)
+                frame.un_highlight()
+            else:
+                self.selected_frames.append(frame)
+                frame.highlight()
+
+    def _clear_selection(self):
+        for f in self.selected_frames:
+            f.un_highlight()
+        self.selected_frames.clear()
 
     def get_frame_with_id(self, frame_id: int) -> Frame | None:
         for frame in self.frame_structure:
@@ -66,34 +108,48 @@ class WindowBuilder(Widget):
             print("❌ Нельзя удалить главный фрейм (main_frame).")
             return
 
+        # 🔁 Рекурсивно удаляем всех детей
+        for child in frame.child[:]:  # создаём копию, чтобы не портить список во время итерации
+            self.delete_frame(child.frame_id)
+
+        # Удаляем себя из родителя
         parent = frame.parent
-        if frame in parent.child:
+        if parent and frame in parent.child:
             parent.child.remove(frame)
 
-        if frame.layout in parent.layout.children:
+        # Удаляем виджет layout
+        if frame.layout and parent and frame.layout in parent.layout.children:
             parent.layout.remove_widget(frame.layout)
 
+        # Удаляем из мапы
         if frame_id in self.frame_id_to_widget_map:
             del self.frame_id_to_widget_map[frame_id]
 
+        # Удаляем из структуры
         if frame in self.frame_structure:
             self.frame_structure.remove(frame)
 
         print(f"✅ Удалён фрейм {frame_id}")
 
-        if self.parent_frame.orientation == "horizontal":
-            self.main_frame.recalculate_dimensions()
-        else:
-            self.main_frame.recalculate_dimensions()
+        # Логика объединения при одном оставшемся ребёнке
+        if parent and len(parent.child) == 1 and not parent.main_frame:
+            print('что-то странное')
+            parent_orientation = parent.orientation
+            parent_frame_id = parent.frame_id
 
-        if len(parent.child) == 1 and parent.frame_id != 0:
-            self.delete_frame(parent.child[0].frame_id)
-            parent.layout.show_canvas = True
+            self.add_frame(self, orientation_frame=parent_orientation, frame_id=parent_frame_id, izm_orient=False)
+            self.delete_frame(parent.frame_id)
 
+        # Вывод актуальной структуры
         for f in self.frame_structure:
-            print(f)
+            print(f, 'frame_structure')
 
-    def add_frame(self, window, frame_id: int = 0, orientation_frame: str = 'horizontal'):
+        # Пересчёт только для main_frame
+        if self.main_frame:
+            self.main_frame.recalculate_window()
+
+
+    def add_frame(self, window, frame_id: int = 0, orientation_frame: str = 'horizontal', izm_orient=True):
         check_window_changing = False
         self.parent_frame = self.get_frame_with_id(frame_id)
         if not self.parent_frame:
@@ -147,10 +203,10 @@ class WindowBuilder(Widget):
                 not_manual_brother.update_height(height)
                 not_manual_brother.update_width(width)
 
-        def create_frame(clear: bool = False):
+        def create_frame(clear: bool = False, izm_orient=True):
             new_id = self.get_max_layout_id() + 1
-            print(f'{new_id}')
-            new_layout = ColorButtonBoxLayout(orientation=orientation_frame,
+            #print(f'{new_id}')
+            new_layout = WindowSection(orientation=orientation_frame,
                                               frame_id=new_id,
                                               window=window,
                                               spacing=SPACING)
@@ -164,7 +220,6 @@ class WindowBuilder(Widget):
             new_layout.overlay.add_widget(new_arrow_widget, index=len(new_layout.children) + 1)
             self.new_frame.arrow_widget = new_arrow_widget
 
-            self.parent_frame.orientation = orientation_frame
 
             self.frame_structure.append(self.new_frame)
             self.frame_id_to_widget_map[new_id] = new_layout
@@ -173,17 +228,25 @@ class WindowBuilder(Widget):
                 self.parent_frame.layout.clear_widgets()
                 self.parent_frame.layout.show_canvas = False
 
+            # Устанавливаем ориентацию layout у родительского фрейма
             self.parent_frame.layout.orientation = orientation_frame
-            if check_window_changing:
-                index = self.parent_frame.layout.children.index(self.get_frame_with_id(frame_id=frame_id).layout)
+
+            # Получаем layout нужного фрейма
+            target_layout = self.get_frame_with_id(frame_id=frame_id).layout
+
+            # Вставляем новый layout в нужную позицию или в конец
+            if check_window_changing and target_layout in self.parent_frame.layout.children:
+                index = self.parent_frame.layout.children.index(target_layout)
                 self.parent_frame.layout.add_widget(new_layout, index=index)
             else:
                 self.parent_frame.layout.add_widget(new_layout)
+
+            # Добавляем новый фрейм в список детей родителя
             self.parent_frame.child.append(self.new_frame)
 
         if len(self.parent_frame.child) <= 1 and orientation_frame != self.parent_frame.orientation:
-            create_frame(clear=True)
-        create_frame()
+            create_frame(clear=True, izm_orient=False)
+        create_frame(izm_orient=False)
 
         recalculate_frame_size()
         self.new_frame.update_layouts_size_hint()

@@ -32,7 +32,7 @@ class WindowCalculator:
 
     def _traverse_and_collect(self, frame: Frame, imposts: List[Dict]):
         if len(frame.child) > 1:
-            print(f'\n\n\n\n {len(frame.child)}   {frame.orientation}   {frame.frame_id}\n\n\n\n')
+            #print(f'\n\n\n\n {len(frame.child)}   {frame.orientation}   {frame.frame_id}\n\n\n\n')
             orientation = 'vertical' if frame.orientation == 'horizontal' else 'horizontal'
             if frame.orientation == 'horizontal':
                 length = frame.height
@@ -53,7 +53,7 @@ class WindowCalculator:
 
     def log_frame_sizes(self, frame: Frame, level=0):
         indent = "  " * level
-        print(f"{indent}Frame {frame.frame_id} | size = ({frame.width} x {frame.height})")
+        #print(f"{indent}Frame {frame.frame_id} | size = ({frame.width} x {frame.height})")
         for child in frame.child:
             self.log_frame_sizes(child, level + 1)
 

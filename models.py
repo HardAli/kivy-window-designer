@@ -4,6 +4,8 @@ from typing import Optional, List
 from kivy.uix.widget import Widget
 from arrowwidget import ArrowWidget
 
+from kivy.graphics import Canvas, Color
+from kivy.clock import Clock
 
 
 
@@ -19,7 +21,9 @@ class Frame:
     manual_set_parametr_w: bool = False
     manual_set_parametr_h: bool = False
     orientation: str = 'horizontal'
-    arrow_widget: ArrowWidget = ArrowWidget('deaf')
+    arrow_widget: ArrowWidget = field(default_factory=lambda: ArrowWidget('deaf'))
+
+    _canvas_is_empty: bool = field(init=False, default=False)
 
     def __repr__(self):
         child_ids = [c.frame_id for c in self.child]
@@ -44,27 +48,20 @@ class Frame:
             'child_ids': [c.frame_id for c in self.child]
         }
 
-    def recalculate_frames(self):
+    def recalculate_window(self):
+        self.recalculate_dimensions('width')
+        self.recalculate_dimensions('height')
+
+    def recalculate_dimensions(self, dim='') -> None:
         """Рекурсивно пересчитывает размеры всех дочерних фреймов."""
-        parent_width, parent_height = self.width, self.height
-        if len(self.child) == 1:
-            self.child[0].width = parent_width
-            self.child[0].height = parent_height
-        elif not len(self.child):
-            return None
-
-        fixed_total_w = sum(child.width for child in self.child if child.manual_set_parametr_w)
-        fixed_total_h = sum(child.height for child in self.child if child.manual_set_parametr_h)
-
-
-
-    def recalculate_dimensions(self) -> None:
-        """Рекурсивно пересчитывает размеры всех дочерних фреймов."""
-        print(f'frame_id: {self.frame_id}, {self}')
-        dimension = 'width' if self.orientation == 'horizontal' else 'height'
+        if dim:
+            dimension = dim
+        else:
+            dimension = 'width' if self.orientation == 'horizontal' else 'height'
         manual_attr = 'manual_set_parametr_w' if dimension == 'width' else 'manual_set_parametr_h'
         parent_size = getattr(self, dimension)
-        print(f'parent_size: {parent_size}')
+
+        true_orientation = 'horizontal' if dimension == 'width' else 'vertical'
 
         # Считаем сумму фиксированных значений
         fixed_total = sum(
@@ -74,9 +71,13 @@ class Frame:
         )
 
         # Список масштабируемых детей
-        scalable_children = [child for child in self.child if not getattr(child, manual_attr)]
+        scalable_children = [child for child in self.child if not getattr(child, manual_attr)
+                             and true_orientation == child.orientation]
+
         num_scalable = len(scalable_children)
         remaining = parent_size - fixed_total
+        print(f'id:{self.frame_id} parent_size:{parent_size} = {getattr(self, dimension)} dimension:{dimension}')
+        print(f'id:{self.frame_id} remaining:{remaining} = parent_size:{parent_size} - fixed_total:{fixed_total}')
 
         if remaining < 0:
             print(f"⚠ Ошибка: фиксированные дети больше родителя (frame_id={self.frame_id})")
@@ -84,6 +85,7 @@ class Frame:
 
         # Новый размер для масштабируемых детей
         per_child_size = remaining // num_scalable if num_scalable else parent_size
+        print(f'id:{self.frame_id} per_child_size: {per_child_size} = remaining:{remaining} // num_scale:{num_scalable}')
 
         # Установка новых размеров
         for child in self.child:
@@ -92,7 +94,7 @@ class Frame:
 
         # Рекурсивный спуск к детям
         for child in self.child:
-            child.recalculate_dimensions()
+            child.recalculate_dimensions(dim=dimension)
 
     def update_layouts_size_hint(self):
         branch = [*self.parent.child]
@@ -100,7 +102,7 @@ class Frame:
         ph = self.parent.height
 
         if pw == 0 and ph == 0:
-            print("error Размер родителя недопустим")
+            #print("error Размер родителя недопустим")
             return
 
         for frame in branch:
@@ -145,11 +147,11 @@ class Frame:
         )
 
     def _update_dimension(self, new_value: int, current_value: int, dimension: str, manual_attr: str) -> None:
-        print(f"\n🔧 Обработка фрейма {self.frame_id} | dimension = {dimension}")
-        print(f"▶ Родительский размер: {new_value}")
+        #print(f"\n🔧 Обработка фрейма {self.frame_id} | dimension = {dimension}")
+        #print(f"▶ Родительский размер: {new_value}")
 
         if new_value <= 0:
-            print(f"❌ Ошибка: новое значение {dimension} недопустимо ({new_value})")
+            #print(f"❌ Ошибка: новое значение {dimension} недопустимо ({new_value})")
             return
 
         setattr(self, dimension, new_value)
@@ -159,7 +161,7 @@ class Frame:
         for child in self.child:
             if getattr(child, manual_attr):
                 fixed_size = getattr(child, dimension)
-                print(f"   🔒 фиксированный ребёнок {child.frame_id}: {dimension} = {fixed_size}")
+                #print(f"   🔒 фиксированный ребёнок {child.frame_id}: {dimension} = {fixed_size}")
                 fixed_total += fixed_size
 
         # Определяем количество дитей повернутых не в ту сторону
@@ -179,15 +181,15 @@ class Frame:
 
 
 
-        print(f"📦 Сумма фиксированных значений: {fixed_total}")
-        print(f"📐 Оставшееся пространство: {remaining} | количество масштабируемых детей: {num_scalable}")
+        #print(f"📦 Сумма фиксированных значений: {fixed_total}")
+        #print(f"📐 Оставшееся пространство: {remaining} | количество масштабируемых детей: {num_scalable}")
 
         if remaining < 0:
             print(f"❌ Ошибка: фиксированные значения превышают родительский размер ({fixed_total} > {new_value})")
             return
 
         per_child_size = remaining // num_scalable if num_scalable else 0
-        print(f"🧮 Назначаемый размер для автоматических детей: {per_child_size}")
+        #print(f"🧮 Назначаемый размер для автоматических детей: {per_child_size}")
 
         # Присваиваем размеры и вызываем рекурсивное обновление
         for child in self.child:
@@ -196,7 +198,7 @@ class Frame:
 
             setattr(child, dimension, target_size)
             update_method = getattr(child, f"update_{dimension}")
-            print(f"↪ Установка {dimension} = {target_size} для ребенка {child.frame_id} | manual = {is_manual}")
+            #print(f"↪ Установка {dimension} = {target_size} для ребенка {child.frame_id} | manual = {is_manual}")
             update_method(target_size)
 
 

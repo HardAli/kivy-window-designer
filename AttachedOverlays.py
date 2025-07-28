@@ -109,16 +109,16 @@ class WindowLinesEvent(AttachedOverlay):
             height = None
 
             if width_text and target == 'width' or target == 'all':
-                print('width')
+                #print('width')
                 width = int(width_text)
                 CreateWinState.main_frame.update_width(width)
 
-                print('\n\n\n\n  iobanyi urod \n\n\n\n')
+                #print('\n\n\n\n  iobanyi urod \n\n\n\n')
             if height_text and target == 'height' or target == 'all':
                 height = int(height_text)
                 CreateWinState.main_frame.update_height(height)
 
-                print('\n\n\n\n  iobanyi urod \n\n\n\n')
+                #print('\n\n\n\n  iobanyi urod \n\n\n\n')
 
             self.target.update_size(upd_width=width or 0, upd_height=height or 0)
 

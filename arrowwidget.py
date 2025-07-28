@@ -145,7 +145,7 @@ class ArrowButtonWidget(ArrowWidget):
 
             # Меняем направление
             self.arrow_widget.direction = self.direction
-            print(f'Выбрана стрелка: {self.direction}')
+            #print(f'Выбрана стрелка: {self.direction}')
             return True
 
         return super().on_touch_down(touch)

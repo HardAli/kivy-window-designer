@@ -4,9 +4,11 @@ from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.clock import Clock
+from kivy.uix.label import Label
 from windowcalculator import WindowCalculator
 from collections import Counter
 from arrowwidget import ArrowWidget, ArrowButtonWidget
+from custominput import CustomInput
 
 import createwinstate
 from createwinstate import CreateWinState, SPACING
@@ -44,9 +46,8 @@ class FrameSettingsPopup(Popup):
         for wincal_res in wincal_resul:
             wincal_res['length'] = int(wincal_res['length'])
             new_w.append(wincal_res)
-        self.count_duplicate_dicts(new_w)
-        print(wincal_resul)
 
+        self.count_duplicate_dicts(new_w)
         self.check_change_width = False
         self.check_change_height = False
 
@@ -55,10 +56,23 @@ class FrameSettingsPopup(Popup):
 
         self.main_window_layout = CreateWinState.main_window_layout
 
-        self.width_input = TextInput(hint_text="Ширина", multiline=False, input_filter="int",
-                                     size_hint=(1, None), height=40)
-        self.height_input = TextInput(hint_text="Высота", multiline=False, input_filter="int",
-                                      size_hint=(1, None), height=40)
+        self.width_input = CustomInput(hint_text="Ширина", multiline=False, input_filter="int",
+                                       size_hint=(1, None), height=40)
+        self.height_input = CustomInput(hint_text="Высота", multiline=False, input_filter="int",
+                                        size_hint=(1, None), height=40)
+
+        self.width_lable = Label(text='ширина', size_hint=(None, None), width=80, height=40, halign='center',
+                                 valign='center')
+        self.height_lable = Label(text='высота', size_hint=(None, None), width=80, height=40, halign='center',
+                                  valign='center')
+
+        self.width_box = BoxLayout(orientation='horizontal', size_hint=(1, None), height=42)
+        self.height_box = BoxLayout(orientation='horizontal', size_hint=(1, None), height=42)
+
+        self.width_box.add_widget(self.width_lable)
+        self.width_box.add_widget(self.width_input)
+        self.height_box.add_widget(self.height_lable)
+        self.height_box.add_widget(self.height_input)
 
         # Установка фокуса на активный TextInput после открытия popup
         Clock.schedule_once(self._set_initial_focus, 0.1)
@@ -70,14 +84,13 @@ class FrameSettingsPopup(Popup):
 
         brothers = window_builder.get_brother(frame=self.frame)
         if len(brothers) < 1:
-            print(len(window_builder.get_brother(frame=self.frame)))
-            self.set_readonly_input(self.width_input)
-            self.set_readonly_input(self.height_input)
-        elif self.parent_frame.orientation == 'horizontal':
-            self.set_readonly_input(self.height_input)
+            self.width_input.set_readonly()
+            self.height_input.set_readonly()
+        elif self.frame.orientation == 'horizontal':
+            self.height_input.set_readonly()
             self.check_change_width = True
-        elif self.parent_frame.orientation == 'vertical':
-            self.set_readonly_input(self.width_input)
+        elif self.frame.orientation == 'vertical':
+            self.width_input.set_readonly()
             self.check_change_height = True
         else:
             print(f'error frame_setting_popup __init__ self.parent_frame = {self.parent_frame.orientation}')
@@ -90,8 +103,8 @@ class FrameSettingsPopup(Popup):
 
         layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
         layout.add_widget(self.open_window_scheme_layout)
-        layout.add_widget(self.width_input)
-        layout.add_widget(self.height_input)
+        layout.add_widget(self.width_box)
+        layout.add_widget(self.height_box)
 
         btns = BoxLayout(size_hint_y=None, height=40, spacing=10)
         btns.add_widget(btn_save)
@@ -111,7 +124,6 @@ class FrameSettingsPopup(Popup):
         # Выводим результат в виде: оригинальный словарь -> сколько раз встречается
         for hashed, count in counter.items():
             original_dict = dict(hashed)
-            print(f"{original_dict} встречается {count} раз(а)")
 
     def _set_initial_focus(self, *_):
         def set_focus_and_select(input_field, open_frizer: int = 2):
@@ -119,19 +131,12 @@ class FrameSettingsPopup(Popup):
             Clock.schedule_once(lambda dt: input_field.select_all(), 0.05)
             if open_frizer > 0:
                 open_frizer -= 1
-                print(open_frizer)
                 Clock.schedule_once(lambda dt: set_focus_and_select(input_field, open_frizer), 0.05)
 
         if not self.width_input.readonly:
             Clock.schedule_once(lambda dt: set_focus_and_select(self.width_input), 0.05)
         elif not self.height_input.readonly:
             Clock.schedule_once(lambda dt: set_focus_and_select(self.height_input), 0.05)
-
-    def set_readonly_input(self, r_input: TextInput):
-        r_input.readonly = True
-        r_input.background_color = (0.9, 0.6, 0.6, 1)
-        r_input.foreground_color = (0, 0, 0, 1)
-        r_input.cursor_color = (0, 0, 0, 0)
 
     def _on_key_down(self, window, key, scancode, codepoint, modifiers):
         if key == ENTER_KEY:  # Enter
@@ -164,11 +169,6 @@ class FrameSettingsPopup(Popup):
             self.frame.update_width(width)
             self.frame.manual_set_parametr_w = True
         if self.check_change_height:
-            print('\n\n\n\nUpdate height\n\n\n\n')
-            print('\n\n\n\nUpdate height\n\n\n\n')
-            print('\n\n\n\nUpdate height\n\n\n\n')
-            print('\n\n\n\nUpdate height\n\n\n\n')
-            print('\n\n\n\nUpdate height\n\n\n\n')
             self.frame.update_height(height)
             self.frame.manual_set_parametr_h = True
 

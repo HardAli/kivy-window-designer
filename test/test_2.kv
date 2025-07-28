@@ -1,0 +1,30 @@
+<StartScreen>
+
+    MDFlatButton:
+        id: button
+        text: 'Press Me'
+        size_hint: 1, 1
+        pos_hint: {'center_y': .5}
+
+        on_release:
+            button_two.text = 'Id: "button_two: " {}'.format(root.new_text_for_button)
+
+    MDFlatButton:
+        id: button_two
+        text: 'Id: "button_two: " Old text'
+        size_hint: 1, 1
+        pos_hint: {'center_y': .5}
+
+    BoxLayout:
+        orientation: 'vertical'
+        Button:
+            id: bx_1
+            text: 'hello world 1'
+            on_release:
+                bx_2.text = 'ou yessss'
+
+        Button:
+            id: bx_2
+            text: 'hello world 2'
+            on_release:
+                root.hell_yeah()

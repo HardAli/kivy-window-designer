@@ -12,6 +12,7 @@ class WindowLayout(ColorBoxLayout):
         self.spacing = spacing
         self.padding = padding
         self.set_color(*background_color)
+        self.background_color = background_color
         self.scale_factor = scale_factor
         self.orig_width = orig_width
         self.orig_height = orig_height

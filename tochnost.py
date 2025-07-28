@@ -54,13 +54,13 @@ class ChessGameAnalyzer:
         }
 
     def print_summary(self) -> None:
-        print(f"📌 Средняя точность за все матчи: {self.get_average_accuracy()}")
+        #print(f"📌 Средняя точность за все матчи: {self.get_average_accuracy()}")
 
-        print("\n📊 Средняя точность по турнирам:")
+        #print("\n📊 Средняя точность по турнирам:")
         for tournament, acc in self.get_average_accuracy_by_tournament().items():
             print(f"— {tournament}: {acc}")
 
-        print("\n📆 Средняя точность по годам:")
+        #print("\n📆 Средняя точность по годам:")
         for year, acc in sorted(self.get_average_accuracy_by_year().items()):
             print(f"— {year}: {acc}")
 

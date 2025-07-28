@@ -1,0 +1,57 @@
+<AllResizeBlock>
+    frame_resize_popup: root
+    orientation: 'horizontal'
+    spacing: 30
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: 'Одинаковая ширина:'
+                size_hint_y: None
+                height: 35
+            CheckBox:
+                id: check_width
+                active: root.width_resize
+                on_active: root.width_resize = self.active
+                size_hint_y: None
+                height: 35
+        BoxLayout:
+            Label:
+                text: 'Ширина'
+                size_hint_y: None
+                height: 35
+            CustomInput:
+                on_kv_post: self.set_not_active()
+                id: all_height_input
+                text: 'hello'
+                size_hint_y: None
+                height: 35
+
+
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: 'Одинаковая высота: '
+                size_hint_y: None
+                height: 35
+            CheckBox:
+                id: check_height
+                active: root.height_resize
+                on_active: root.height_resize = self.active
+                size_hint_y: None
+                height: 35
+
+        BoxLayout:
+            Label:
+                text: 'Высота'
+                size_hint_y: None
+                height: 35
+            CustomInput:
+                on_kv_post: self.set_not_active()
+                id: all_width_input
+                text: 'world'
+                size_hint_y: None
+                height: 35

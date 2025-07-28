@@ -1,8 +1,6 @@
-import createwinstate
-from models import Frame
+from app.state import createwinstate
+from app.models.models import Frame
 from typing import List, Dict
-
-from createwinstate import CreateWinState
 
 IMPOST_THICKNESS = createwinstate.shirina_peregorodok  # ширина перегородки (например, 58 мм)
 

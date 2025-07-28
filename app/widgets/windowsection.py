@@ -5,7 +5,7 @@ from kivy.uix.label import Label
 from kivy.properties import BooleanProperty
 from kivy.graphics import Color, Line, Rectangle
 
-from frame_setting_popup import FrameSettingsPopup
+from app.popups.frame_setting_popup import FrameSettingsPopup
 from colorlayauts import ColoredLayout
 
 

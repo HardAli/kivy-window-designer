@@ -9,7 +9,7 @@ from kivy.uix.scrollview import ScrollView
 from enum import Enum
 
 from spineroptions import CustomSpinnerOption
-from popups import ContextMenu
+from app.popups.context_menu_popup import ContextMenu
 
 
 class CellType(str, Enum):

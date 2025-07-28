@@ -1,11 +1,10 @@
 from kivy.uix.widget import Widget
-from kivy.graphics import Line, Color, Rectangle
 from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
 from kivy.core.window import Window
-from createwinstate import CreateWinState
+from app.state.createwinstate import CreateWinState
 
-from windowlayout import WindowLayout
+from app.widgets.windowlayout import WindowLayout
 
 
 class AttachedOverlay(FloatLayout):

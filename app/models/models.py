@@ -2,11 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional, List
 from kivy.uix.widget import Widget
-from arrowwidget import ArrowWidget
-
-from kivy.graphics import Canvas, Color
-from kivy.clock import Clock
-
+from app.widgets.arrowwidget import ArrowWidget
 
 
 @dataclass

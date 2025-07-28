@@ -4,13 +4,12 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.checkbox import CheckBox
 from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
-from custominput import CustomInput
+from app.widgets.custominput import CustomInput
 from kivy.lang.builder import Builder
 
 
-Builder.load_file('popup_resize.kv')
+Builder.load_file('../../kv/popup_resize.kv')
 
 
 class AllResizeBlock(BoxLayout):

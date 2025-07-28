@@ -2,10 +2,6 @@ from kivymd.app import MDApp
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.core.window import Window
 
-from createnewwindow import CreateNewWindow
-from glasscut import GlassCut
-
-
 # задаем размер окна
 Window.size = (700, 500)
 # set background color

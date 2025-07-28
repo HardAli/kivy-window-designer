@@ -1,7 +1,7 @@
 from kivy.core.window import Window
 from colorlayauts import ColorBoxLayout
 from kivy.clock import Clock
-from createwinstate import SPACING
+from app.state.createwinstate import SPACING
 
 
 class WindowLayout(ColorBoxLayout):

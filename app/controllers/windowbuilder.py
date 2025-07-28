@@ -1,11 +1,11 @@
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
-from models import Frame
-from windowlayout import WindowLayout
-from windowsection import WindowSection
-from createwinstate import CreateWinState, SPACING
-from arrowwidget import ArrowWidget
-from popup_resize import FrameResizePopup
+from models_open_window import Frame
+from app.widgets.windowlayout import WindowLayout
+from app.widgets.windowsection import WindowSection
+from app.state.createwinstate import CreateWinState, SPACING
+from app.widgets.arrowwidget import ArrowWidget
+from app.popups.popup_resize import FrameResizePopup
 
 
 class WindowBuilder(Widget):

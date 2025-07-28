@@ -1,12 +1,11 @@
 from kivy.core.window import Window
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.graphics import Color, Ellipse, Line, Rectangle, RoundedRectangle, Canvas
+from kivy.graphics import Canvas
 from kivy.uix.screenmanager import Screen
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 
-from colorlayauts import *
+from app.widgets.colorlayauts import *
 
 
 # Coздаем обьект окна
@@ -39,15 +38,48 @@ class WindowObject():
                     return True
         return False
 
-    def add_win_parametrs(self, win_id, size, pos, section=False):
+    def add_win_parametrs(self, win_id, size, section=False):
         self.window[2].append({
             'id': win_id,
             'width': size[0],
             'height': size[1],
-            'pos_x': pos[0],
-            'pos_y': pos[1],
             'section': section
         })
+
+    def find_subarray_with_id(self, target_id, data=[]):
+        if target_id == 0:
+            return [1, 2, 3]
+        if not data:
+            data = self.get_windows()
+
+        for item in data:
+            if isinstance(item, list):
+                result = self.find_subarray_with_id(target_id, item)
+                if result is not None:
+                    return result
+            elif item == target_id:
+                return data
+        return None
+
+    def find_parent_id(self, target_id=0, data=[], parent=None):
+        if not data:
+            data = self.get_windows()
+        for item in data:
+            if isinstance(item, list):
+                # если вложенный элемент это - список, продолжаем искать рекурсивно
+                result = self.find_parent_id(target_id, item, parent=data[0])
+                if result is not None:
+                    return result
+            elif item == target_id:
+                if isinstance(parent, list):
+                    parent = parent[0]
+                return parent
+        return None
+
+    def sorted_parametrs_with_id(self):
+        parametrs = self.window[2]
+        sorted_parametrs = sorted(parametrs, key=lambda x: x['id'])
+        self.window[2] = sorted_parametrs[:]
 
     def add_section(self, win_id=0, orientation='horizontal'):
         # получаем все id
@@ -139,49 +171,6 @@ class WindowObject():
             win_tick = self.get_tick()
         return get_parametrs(par_size, par_pos, win_tick, orient)
 
-    def find_subarray_with_id(self, target_id, data=[]):
-        if target_id == 0:
-            return [1, 2, 3]
-        if not data:
-            data = self.get_windows()
-
-        for item in data:
-            if isinstance(item, list):
-                result = self.find_subarray_with_id(target_id, item)
-                if result is not None:
-                    return result
-            elif item == target_id:
-                return data
-        return None
-
-    def find_parent_id(self, target_id=0, data=[], parent=None):
-        if not data:
-            data = self.get_windows()
-        for item in data:
-            if isinstance(item, list):
-                # если вложенный элемент это - список, продолжаем искать рекурсивно
-                result = self.find_parent_id(target_id, item, parent=data[0])
-                if result is not None:
-                    return result
-            elif item == target_id:
-                if isinstance(parent, list):
-                    parent = parent[0]
-                return parent
-        return None
-
-    def sorted_parametrs_with_id(self):
-        parametrs = self.window[2]
-        sorted_parametrs = sorted(parametrs, key=lambda x: x['id'])
-        self.window[2] = sorted_parametrs[:]
-
-    def set_position_parametrs_zero_cords(self):
-        position_window_x, position_window_y = self.get_pos()
-        for i, item in enumerate(self.window[2]):
-            if item['id'] != 0:
-                self.window[2][i]['pos_x'] = item['pos_x'] - position_window_x
-                self.window[2][i]['pos_y'] = item['pos_y'] - position_window_y
-        else:
-            print('Список приведен к нулю')
 
     def set_width(self, width):
         self.window[0]['width'] = width
@@ -239,7 +228,7 @@ class WindowObject():
     def get_windows(self):
         return self.window[1]
 
-    
+
 class WidgetWindow(Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -331,25 +320,6 @@ class TabloObject:
         return [(self.tablo['width'] / 2) + self.tablo['pos_x'], (self.tablo['height'] / 2) + self.tablo['pos_y']]
 
 
-def refactor_size_window(window, tablo):
-    width, height = window[0]['width'], window[0]['height']
-    can_width, can_height = tablo['width'], tablo['height']
-    padding_hint = 0.1
-    reduction_rat = 1
-    if height > can_height:
-        reduction_rat = can_height / (height - (height * padding_hint))
-
-    if width > can_width:
-        r2 = can_width / (width - (width * padding_hint))
-        if r2 > reduction_rat:
-            reduction_rat = r2
-
-    window[0]['width'] = width * reduction_rat
-    window[0]['height'] = height * reduction_rat
-
-    return [window, reduction_rat]
-
-
 # экран создания нового окна
 class CreateNewWindow(Screen):
     # создаем обьекты табло и окна
@@ -383,6 +353,9 @@ class CreateNewWindow(Screen):
         self.window.sorted_parametrs_with_id()
         self.draw_window(self.window)
         #print(self.window.get_windows())
+
+
+
 
     def add_all_layout(self):
         self.create_window_layout.clear_widgets()
@@ -424,10 +397,10 @@ class CreateNewWindow(Screen):
             s = s[:]
             p[0], p[1] = p[0] + tick, p[1] + tick
             s[0], s[1] = s[0] - (tick * 2), s[1] - (tick * 2)
-            c = color_convector(color=c)
+            #c = color_convector(color=c)
             if after:
                 with self.window_layer.canvas.after:
-                    Color(c[0], c[1], c[2], alpha)
+                    #Color(c[0], c[1], c[2], alpha)
                     Rectangle(
                         pos=(p[0], p[1]),
                         size=(s[0], s[1])

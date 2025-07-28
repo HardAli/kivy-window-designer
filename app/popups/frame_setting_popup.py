@@ -1,17 +1,15 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
-from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.clock import Clock
 from kivy.uix.label import Label
-from windowcalculator import WindowCalculator
+from app.services.windowcalculator import WindowCalculator
 from collections import Counter
-from arrowwidget import ArrowWidget, ArrowButtonWidget
-from custominput import CustomInput
+from app.widgets.arrowwidget import ArrowButtonWidget
+from app.widgets.custominput import CustomInput
 
-import createwinstate
-from createwinstate import CreateWinState, SPACING
+from app.state.createwinstate import CreateWinState
 from kivy.core.window import Window
 
 ENTER_KEY = 13
